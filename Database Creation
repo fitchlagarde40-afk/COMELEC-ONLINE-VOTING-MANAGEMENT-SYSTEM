@@ -1,0 +1,70 @@
+CREATE TABLE `voters` (
+  `voter_id` integer PRIMARY KEY,
+  `voter_number` varchar(30) UNIQUE NOT NULL,
+  `full_name` varchar(100) NOT NULL,
+  `birth_date` date,
+  `municipality` varchar(100),
+  `registration_status` varchar(30)
+);
+
+CREATE TABLE `voter_accounts` (
+  `account_id` integer PRIMARY KEY,
+  `voter_id` integer UNIQUE NOT NULL,
+  `username` varchar(50) UNIQUE NOT NULL,
+  `password_hash` varchar(100) NOT NULL,
+  `account_status` varchar(30)
+);
+
+CREATE TABLE `elections` (
+  `election_id` integer PRIMARY KEY,
+  `election_name` varchar(150) NOT NULL,
+  `election_date` date NOT NULL,
+  `election_type` varchar(50),
+  `status` varchar(30)
+);
+
+CREATE TABLE `positions` (
+  `position_id` integer PRIMARY KEY,
+  `election_id` integer NOT NULL,
+  `position_name` varchar(100) NOT NULL,
+  `maximum_votes` integer NOT NULL
+);
+
+CREATE TABLE `candidates` (
+  `candidate_id` integer PRIMARY KEY,
+  `position_id` integer NOT NULL,
+  `full_name` varchar(100) NOT NULL,
+  `political_party` varchar(100)
+);
+
+CREATE TABLE `votes` (
+  `vote_id` integer PRIMARY KEY,
+  `voter_id` integer NOT NULL,
+  `election_id` integer NOT NULL,
+  `vote_date` date NOT NULL,
+  `ballot_status` varchar(30)
+);
+
+CREATE TABLE `vote_details` (
+  `vote_detail_id` integer PRIMARY KEY,
+  `vote_id` integer NOT NULL,
+  `candidate_id` integer NOT NULL
+);
+
+CREATE UNIQUE INDEX `votes_index_0` ON `votes` (`voter_id`, `election_id`);
+
+CREATE UNIQUE INDEX `vote_details_index_1` ON `vote_details` (`vote_id`, `candidate_id`);
+
+ALTER TABLE `voters` ADD FOREIGN KEY (`voter_id`) REFERENCES `voter_accounts` (`voter_id`);
+
+ALTER TABLE `positions` ADD FOREIGN KEY (`election_id`) REFERENCES `elections` (`election_id`);
+
+ALTER TABLE `candidates` ADD FOREIGN KEY (`position_id`) REFERENCES `positions` (`position_id`);
+
+ALTER TABLE `votes` ADD FOREIGN KEY (`voter_id`) REFERENCES `voters` (`voter_id`);
+
+ALTER TABLE `votes` ADD FOREIGN KEY (`election_id`) REFERENCES `elections` (`election_id`);
+
+ALTER TABLE `vote_details` ADD FOREIGN KEY (`vote_id`) REFERENCES `votes` (`vote_id`);
+
+ALTER TABLE `vote_details` ADD FOREIGN KEY (`candidate_id`) REFERENCES `candidates` (`candidate_id`);
